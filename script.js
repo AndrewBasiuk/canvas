@@ -13,18 +13,6 @@ function mousePos(e) {
     return pos;
 }
 
-// function Circle(x, y, rad) {
-//     this.centerX = x;
-//     this.centerY = y;
-//     this.rad = rad;
-//     this.draw = function() {
-//         ctx.beginPath();
-//         ctx.arc(this.centerX, this.centerY, this.rad, 0, 2 * Math.PI, true);
-//         ctx.fillStyle = "rgb(0, 0, 0)";
-//         ctx.fill();
-//         ctx.closePath();
-//     };
-// }
 
 function сircle(x, y, rad) {
     ctx.beginPath();
@@ -34,40 +22,61 @@ function сircle(x, y, rad) {
     ctx.closePath();
 }
 
-let num = 1;
-let randomBall = [];
-for (let index = 0; index < num; index++) {
-    randomBall.push(
-        {
-            x: getRandomInt(0, 1000),
-            y: getRandomInt(0, 600)
+function Circle(x, y, dx, dy, rad) {
+    this.x = x;
+    this.dx = dx;
+    this.y = y;
+    this.dy = dy;
+    this.rad = rad;
+
+    this.draw = function() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.rad, 0, 2 * Math.PI, true);
+        ctx.fillStyle = "rgb(0, 0, 0)";
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    this.update = function () {
+        if (this.x < rad || this.x > canvas.width - rad) {
+            this.dx = -this.dx;
         }
-    );
+        if (this.y < rad || this.y > canvas.height - rad) {
+            this.dy = -this.dy;
+        }
+        this.x += this.dx;
+        this.y +=this.dy;
+    }
 }
+
+let num = 4;
+let allCircles = [];
+
+for (let index = 0; index < num; index++) {
+    let x = getRandomInt(0, 1000), dx = getRandomInt(0, 3);
+    let y = getRandomInt(0, 600), dy = getRandomInt(0, 1);
+    allCircles.push(new Circle(x, y, dx, dy, 20));
+}
+
+
+function Render() {
+    requestAnimationFrame(Render);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    allCircles.forEach(function (el) {
+        el.update();
+        el.draw();
+    });
+}
+Render();
+
+
+
 
 // canvas.addEventListener("mousemove", function (e) {
 //     ctx.clearRect(0, 0, canvas.width, canvas.height);
 //     var coord = mousePos(e);
 //     сircle(coord.x, coord.y, 15);
 // });
-
-function Render() {
-    requestAnimationFrame(Render);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    randomBall.forEach(function(el) {
-        сircle(el.x, el.y, 10);
-    });
-}
-Render();
-canvas.addEventListener("mousemove", function (e) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    var coord = mousePos(e);
-    сircle(coord.x, coord.y, 15);
-});
-
-
-
 
 // function bigCircle(x, y) {
 //     circle.centerX = x;
