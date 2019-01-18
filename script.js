@@ -1,73 +1,88 @@
-
-var canvas = document.getElementById("canvas");
-var ctx = canvas.getContext("2d");
+let canvas = document.getElementById("canvas");
+let ctx = canvas.getContext("2d");
+let pos = {};
+let num = 100;
+let allCircles = [];
+let colorArr = ["#0d0f11", "#61000d", "#d2374a", "#5d9700", "#092a3a"];
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function mousePos(e) {
-    let pos = {};
     pos.y = e.pageY - e.target.getBoundingClientRect().top;
     pos.x = e.pageX - e.target.getBoundingClientRect().left;
-    return pos;
 }
 
+canvas.addEventListener("mousemove", function (e) {
+    mousePos(e);
+});
 
-function сircle(x, y, rad) {
-    ctx.beginPath();
-    ctx.arc(x, y, rad, 0, 2 * Math.PI, true);
-    ctx.fillStyle = "rgb(0, 0, 0)";
-    ctx.fill();
-    ctx.closePath();
-}
-
-function Circle(x, y, dx, dy, rad) {
+function Circle(x, y, dx, dy, rad, color) {
     this.x = x;
-    this.dx = dx;
     this.y = y;
+    this.dx = dx;
     this.dy = dy;
     this.rad = rad;
+    this.color = color;
 
-    this.draw = function() {
+    this.draw = function () {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.rad, 0, 2 * Math.PI, true);
-        ctx.fillStyle = "rgb(0, 0, 0)";
+        ctx.fillStyle = this.color;
         ctx.fill();
         ctx.closePath();
     }
 
     this.update = function () {
-        if (this.x < rad || this.x > canvas.width - rad) {
+        // set range for circle moving
+        if (this.x > canvas.width - this.rad || this.x < this.rad) {
             this.dx = -this.dx;
         }
-        if (this.y < rad || this.y > canvas.height - rad) {
+        if (this.y > canvas.height - this.rad || this.y < this.rad) {
             this.dy = -this.dy;
         }
         this.x += this.dx;
-        this.y +=this.dy;
+        this.y += this.dy;
+
+        // change circle radius on hover
+        if (pos.x - 50 < this.x && pos.x + 50 > this.x && pos.y - 50 < this.y && pos.y + 50 > this.y) {
+            if (this.rad <= 30) {
+                this.rad += 20;
+            }
+        } else if (this.rad >= rad) {
+            this.rad -= 1;
+        }
+
+        this.draw();
     }
 }
 
-let num = 4;
-let allCircles = [];
-
+//set random parameter for each objekt
 for (let index = 0; index < num; index++) {
-    let x = getRandomInt(0, 1000), dx = getRandomInt(0, 3);
-    let y = getRandomInt(0, 600), dy = getRandomInt(0, 1);
-    allCircles.push(new Circle(x, y, dx, dy, 20));
+    let rad = getRandomInt(3, 15);
+    let x = getRandomInt(rad, 1000 - rad);
+    let y = getRandomInt(rad, 600 - rad);
+    let dx = getRandomInt(-1, 1);
+    let dy = getRandomInt(-1, 1);
+    let color = colorArr[getRandomInt(0, 4)];
+
+    if (dx == 0 && dy == 0) {
+        dx = 1;
+        dy = -1;
+    }
+    allCircles.push(new Circle(x, y, dx, dy, rad, color));
 }
 
-
-function Render() {
-    requestAnimationFrame(Render);
+function animation() {
+    requestAnimationFrame(animation);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     allCircles.forEach(function (el) {
         el.update();
-        el.draw();
     });
 }
-Render();
+animation();
 
 
 
