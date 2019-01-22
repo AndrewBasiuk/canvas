@@ -1,7 +1,7 @@
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
-let pos = {x:500, y:300};
-let num = 5;
+let pos = {};
+let num = 100;
 let allCircles = [];
 let colorArr = ["#0d0f11", "#61000d", "#d2374a", "#5d9700", "#092a3a"];
 
@@ -18,15 +18,13 @@ canvas.addEventListener("mousemove", function (e) {
     mousePos(e);
 });
 
-function Circle(x, y, dx, dy, rad, radians) {
+function Circle(x, y, dx, dy, rad, color) {
     this.x = x;
     this.y = y;
     this.dx = dx;
     this.dy = dy;
     this.rad = rad;
-    // this.color = color;
-    this.radians = radians;
-    this.velocity = 0.03;
+    this.color = color;
 
     this.draw = function () {
         ctx.beginPath();
@@ -37,9 +35,20 @@ function Circle(x, y, dx, dy, rad, radians) {
     }
 
     this.update = function () {
-        this.radians += this.velocity;
-        this.x = x + Math.cos(this.radians)*100;
-        this.y = y + Math.sin(this.radians)*100;
+        // set range for circle moving
+        if (this.x > canvas.width - this.rad || this.x < this.rad) {
+            this.dx = -this.dx;
+        }
+
+        if (this.y > canvas.height - this.rad-5) {
+            // 5 is magick number
+            this.dy = -this.dy * 0.93;
+        } else {
+            this.dy += 2;
+        }
+
+        this.x += this.dx;
+        this.y += this.dy;
 
         this.draw();
     }
@@ -61,20 +70,17 @@ function Circle(x, y, dx, dy, rad, radians) {
 //     allCircles.push(new Circle(x, y, dx, dy, rad, color));
 // }
 
-let count = 0;
-for (let index = 1; index <= num; index++) {
-    let radians = Math.PI + count;
-    count += 2 * Math.PI / num;
-    allCircles.push(new Circle(500, 300, 1, 2, 15, radians));
-}
-
+let circle = new Circle(45, 0, 20, 1, 30, "green");
 
 function animation() {
     requestAnimationFrame(animation);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    allCircles.forEach(function (el) {
-        el.update();
-    });
+    circle.update();
+
+    // allCircles.forEach(function (el) {
+    //     el.update();
+    // });
 }
 animation();
+
